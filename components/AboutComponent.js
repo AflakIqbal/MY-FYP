@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import { View, FlatList, Text, ScrollView } from 'react-native';
 import { ListItem, Card } from 'react-native-elements';
 import { LEADERS } from '../shared/leaders';
-
+import { Loading } from './LoadingComponent';
 import { connect } from 'react-redux';
 import { baseUrl } from '../shared/baseUrl';
+import * as Animatable from 'react-native-animatable';
 
 const mapStateToProps = (state) => {
   return {
@@ -51,18 +52,42 @@ class About extends Component {
       );
     };
 
-    return (
-      <ScrollView>
-        <History />
-        <Card title={'Corporate LeaderShip'}>
-          <FlatList
-            data={this.props.leaders.leaders}
-            renderItem={renderLeader}
-            keyExtractor={(item) => item.id.toString()}
-          />
-        </Card>
-      </ScrollView>
-    );
+    if (this.props.leaders.isLoading) {
+      return (
+        <ScrollView>
+          <Animatable.View animation='fadeInDown' duration={2000} delay={1000}>
+            <History />
+            <Card title='Corporate Leadership'>
+              <Loading />
+            </Card>
+          </Animatable.View>
+        </ScrollView>
+      );
+    } else if (this.props.leaders.errMess) {
+      return (
+        <ScrollView>
+          <Animatable.View animation='fadeInUp' duration={2000} delay={1000}>
+            <History />
+            <Card title='Corporate Leadership'>
+              <Text>{this.props.leaders.errMess}</Text>
+            </Card>
+          </Animatable.View>
+        </ScrollView>
+      );
+    } else {
+      return (
+        <ScrollView>
+          <History />
+          <Card title='Corporate Leadership'>
+            <FlatList
+              data={this.props.leaders.leaders}
+              renderItem={renderLeader}
+              keyExtractor={(item) => item.id.toString()}
+            />
+          </Card>
+        </ScrollView>
+      );
+    }
   }
 }
 
