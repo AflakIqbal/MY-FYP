@@ -1,83 +1,108 @@
 import React, { Component } from 'react';
-import { Text, StyleSheet, View, Image } from 'react-native';
+import { Text, StyleSheet, View, Image, ImageBackground } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import { Card, Button, Icon } from 'react-native-elements';
 import * as MailComposer from 'expo-mail-composer';
-import { Login } from './LoginComponent';
+import Login from './Owner/LoginComponent';
 import { connect } from 'react-redux';
+import { baseUrl } from '../shared/baseUrl';
 
 class Landing extends Component {
   constructor(props) {
     super(props);
-    this.owner = this.owner.bind(this);
+    this.state = {
+      showBusiness: false,
+    };
   }
+
   owner() {
-    <Login />;
+    this.props.navigation.navigate('Login');
   }
-  //   constructor(props) {
-  //     super(props);
-  //     this.state = { isToggleOn: true };
 
-  //     this.owner = this.owner.bind(this);
-  //   }
-
-  //   owner() {
-  //     this.setState((state) => ({
-  //       isToggleOn: state.isToggleOn,
-  //     }));
-  //   }
   render() {
     return (
       <Animatable.View
-        animation='zoomInUp'
+        animation='zoomIn'
         duration={2000}
         delay={1000}
         style={styles.landing}
       >
-        <Text style={styles.title}>Welcome To SAWARI</Text>
-        <View style={styles.container}>
-          <Image style={styles.image} source={require('./images/logo.png')} />
-        </View>
+        {/* <ImageBackground
+          source={require('./images/bc3.jpg')}
+          style={styles.image}
+        > */}
+        {/* <ImageBackground
+          source={require('./images/CarLanding.png')}
+          style={styles.image}
+        > */}
+
+        <Image style={styles.image} source={require('./images/logo.png')} />
+
+        <Text style={styles.text1}>{'Login As'}</Text>
+
         <Button
-          title=' Login As Owner'
+          title=' Owner'
           buttonStyle={styles.button}
           icon={<Icon name='user' type='font-awesome' color='white' />}
-          onPress={this.owner}
-          style={styles.button}
+          onPress={() => this.owner()}
         />
 
         <Button
-          title=' Login As Customer'
+          title=' Customer'
           buttonStyle={styles.button}
           icon={<Icon name='user' type='font-awesome' color='white' />}
           onPress={this.sendMail}
-          style={styles.button}
         />
+        <Image
+          style={styles.image2}
+          source={require('./images/CarLanding.png')}
+        ></Image>
+        {this.state.showBusiness === true && <Login />}
       </Animatable.View>
     );
   }
   static navigationOptions = {
-    title: 'Contact',
+    title: 'Welcome to SAWARI',
   };
 }
 
 const styles = StyleSheet.create({
-  image: {
-    marginLeft: 25,
-  },
+  image: {},
   landing: {
-    margin: 15,
     color: 'gray',
     justifyContent: 'center',
     paddingTop: 40,
   },
-  container: {
-    paddingLeft: 15,
+
+  image: {
+    //marginLeft: 90,
+
+    alignSelf: 'center',
+    resizeMode: 'cover',
+    justifyContent: 'center',
+    width: 200,
+    height: 200,
+    marginBottom: 30,
+  },
+  text1: {
+    textAlign: 'center',
+    fontSize: 20,
+    fontFamily: 'serif',
+  },
+  image2: {
+    // resizeMode: 'cover',
+    // justifyContent: 'center',
+    width: 400,
+    height: 250,
+    // marginBottom: 30,
   },
   button: {
     backgroundColor: '#512DA8',
     borderRadius: 50,
     margin: 10,
+    alignSelf: 'center',
+    //marginLeft: 60,
+    width: 200,
   },
   card: {
     borderColor: 'black',

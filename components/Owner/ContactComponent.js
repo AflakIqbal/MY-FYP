@@ -17,12 +17,14 @@ class Contact extends Component {
     return (
       <Animatable.View animation='fadeInDown' duration={2000} delay={1000}>
         <Card title={'Our Address'}>
-          <Text style={{ margin: 10 }}>{'121, Clear Water Bay Road'}</Text>
-          <Text style={{ margin: 10 }}>{'Clear Water Bay, Kowloon'}</Text>
-          <Text style={{ margin: 10 }}>{'HONG KONG'}</Text>
-          <Text style={{ margin: 10 }}>{'Tel: +852 1234 5678'}</Text>
-          <Text style={{ margin: 10 }}>{'Fax: +852 8765 4321'}</Text>
-          <Text style={{ margin: 10 }}>{'Email:confusion@food.net'}</Text>
+          <Text style={{ margin: 10 }}>{'COMSATS UNIVERSITY ISLAMABAD'}</Text>
+          <Text style={{ margin: 10 }}>{'Tarlai kalan, Park Road'}</Text>
+          <Text style={{ margin: 10 }}>{'Islamabad, Pakistan'}</Text>
+          <Text style={{ margin: 10 }}>{'Tel: +923046860017'}</Text>
+          <Text style={{ margin: 10 }}>{'Fax: +923356223525'}</Text>
+          <Text style={{ margin: 10 }}>
+            {'Email:muhammadaflak322@gmail.com'}
+          </Text>
           <Button
             title='Send Email'
             buttonStyle={{ backgroundColor: '#512DA8' }}

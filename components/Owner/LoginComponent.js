@@ -6,9 +6,12 @@ import * as Permissions from 'expo-permissions';
 import * as ImagePicker from 'expo-image-picker';
 import { Asset } from 'expo-asset';
 import * as ImageManipulator from 'expo-image-manipulator';
+import { AsyncStorage } from 'react-native';
+import { baseUrlNode } from '../../shared/baseUrl';
 
-import { createBottomTabNavigator } from 'react-navigation';
-import { baseUrl } from '../shared/baseUrl';
+import { createBottomTabNavigator } from 'react-navigation-tabs';
+//import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { baseUrl } from '../../shared/baseUrl';
 
 class LoginTab extends Component {
   constructor(props) {
@@ -21,16 +24,16 @@ class LoginTab extends Component {
     };
   }
 
-  componentDidMount() {
-    SecureStore.getItemAsync('userinfo').then((userdata) => {
-      let userinfo = JSON.parse(userdata);
-      if (userinfo) {
-        this.setState({ username: userinfo.username });
-        this.setState({ password: userinfo.password });
-        this.setState({ remember: true });
-      }
-    });
-  }
+  // componentDidMount() {
+  //   SecureStore.getItemAsync('userinfo').then((userdata) => {
+  //     let userinfo = JSON.parse(userdata);
+  //     if (userinfo) {
+  //       this.setState({ username: userinfo.username });
+  //       this.setState({ password: userinfo.password });
+  //       this.setState({ remember: true });
+  //     }
+  //   });
+  // }
 
   static navigationOptions = {
     title: 'Login',
@@ -45,19 +48,30 @@ class LoginTab extends Component {
   };
 
   handleLogin() {
-    console.log(JSON.stringify(this.state));
-    if (this.state.remember)
-      SecureStore.setItemAsync(
-        'userinfo',
-        JSON.stringify({
-          username: this.state.username,
-          password: this.state.password,
-        })
-      ).catch((error) => console.log('Could not save user info', error));
-    else
-      SecureStore.deleteItemAsync('userinfo').catch((error) =>
-        console.log('Could not delete user info', error)
-      );
+    fetch(baseUrlNode + 'api/owner/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: this.state.username,
+        password: this.state.password,
+      }),
+    })
+      .then((res) => res.json())
+      .then(async (data) => {
+        try {
+          if (!data.errors) {
+            await AsyncStorage.setItem('token', data.token);
+            const token = await AsyncStorage.getItem('token');
+            this.props.navigation.navigate('main');
+          } else {
+            data.errors.forEach((error) => alert(error.msg));
+          }
+        } catch (e) {
+          console.log('error hai', e);
+        }
+      });
   }
 
   render() {
@@ -87,7 +101,7 @@ class LoginTab extends Component {
         <View style={styles.formButton}>
           <Button
             onPress={() => this.handleLogin()}
-            title='Login'
+            title=' Login'
             icon={
               <Icon
                 name='sign-in'
@@ -104,7 +118,7 @@ class LoginTab extends Component {
         <View style={styles.formButton}>
           <Button
             onPress={() => this.props.navigation.navigate('Register')}
-            title='Register'
+            title=' Register'
             clear
             icon={
               <Icon
@@ -116,6 +130,9 @@ class LoginTab extends Component {
             }
             titleStyle={{
               color: 'blue',
+            }}
+            buttonStyle={{
+              backgroundColor: null,
             }}
           />
         </View>
@@ -129,13 +146,14 @@ class RegisterTab extends Component {
     super(props);
 
     this.state = {
-      username: '',
-      password: '',
-      firstname: '',
-      lastname: '',
+      name: '',
+      cellPhone: '',
+      address: '',
       email: '',
+      password: '',
+      city: '',
       remember: false,
-      imageUrl: baseUrl + 'images/logo.png',
+      imageUrl: baseUrl + 'images/nobody.jpg',
     };
   }
 
@@ -183,15 +201,36 @@ class RegisterTab extends Component {
   };
 
   handleRegister() {
-    console.log(JSON.stringify(this.state));
-    if (this.state.remember)
-      SecureStore.setItemAsync(
-        'userinfo',
-        JSON.stringify({
-          username: this.state.username,
-          password: this.state.password,
-        })
-      ).catch((error) => console.log('Could not save user info', error));
+    console.log('yahan a raha');
+    fetch(baseUrlNode + 'api/owner/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: this.state.name,
+        cellPhone: this.state.cellPhone,
+        address: this.state.address,
+        email: this.state.email,
+        city: this.state.city,
+        password: this.state.password,
+      }),
+    })
+      .then((res) => res.json())
+      .then(async (data) => {
+        try {
+          if (!data.errors) {
+            await AsyncStorage.setItem('token', data.token);
+            const token = await AsyncStorage.getItem('token');
+            console.log(token);
+            this.props.navigation.navigate('Login');
+          } else {
+            data.errors.forEach((error) => alert(error.msg));
+          }
+        } catch (e) {
+          console.log('error hai', e);
+        }
+      });
   }
   pickImage = async () => {
     try {
@@ -214,48 +253,78 @@ class RegisterTab extends Component {
     return (
       <ScrollView>
         <View style={styles.container}>
+          <Text style={{ margin: 10, fontSize: 15 }}>
+            Select your Profile Picture
+          </Text>
           <View style={styles.imageContainer}>
             <Image
               source={{ uri: this.state.imageUrl }}
-              loadingIndicatorSource={require('./images/logo.png')}
+              loadingIndicatorSource={require('../images/logo.png')}
               style={styles.image}
             />
-            <Button title='Camera' onPress={this.getImageFromCamera} />
-            <Button title='Gallary' onPress={this.pickImage} />
+            <Button
+              title='Camera'
+              onPress={this.getImageFromCamera}
+              buttonStyle={{
+                backgroundColor: null,
+              }}
+              titleStyle={{
+                color: 'blue',
+                textDecorationLine: 'underline',
+              }}
+            />
+            <Button
+              title='Gallary'
+              onPress={this.pickImage}
+              buttonStyle={{
+                backgroundColor: null,
+              }}
+              titleStyle={{
+                color: 'blue',
+                textDecorationLine: 'underline',
+              }}
+            />
           </View>
           <Input
-            placeholder='Username'
+            placeholder=' Username'
             leftIcon={{ type: 'font-awesome', name: 'user-o' }}
-            onChangeText={(username) => this.setState({ username })}
-            value={this.state.username}
+            onChangeText={(name) => this.setState({ name })}
+            value={this.state.name}
             containerStyle={styles.formInput}
           />
           <Input
-            placeholder='Password'
-            leftIcon={{ type: 'font-awesome', name: 'key' }}
-            onChangeText={(password) => this.setState({ password })}
-            value={this.state.password}
+            placeholder=' Cell Number'
+            leftIcon={{ type: 'font-awesome', name: 'phone' }}
+            onChangeText={(cellPhone) => this.setState({ cellPhone })}
+            value={this.state.cellPhone}
             containerStyle={styles.formInput}
           />
           <Input
-            placeholder='First Name'
-            leftIcon={{ type: 'font-awesome', name: 'user-o' }}
-            onChangeText={(firstname) => this.setState({ firstname })}
-            value={this.state.firstname}
+            placeholder=' Address'
+            leftIcon={{ type: 'font-awesome', name: 'address-book-o' }}
+            onChangeText={(address) => this.setState({ address })}
+            value={this.state.address}
             containerStyle={styles.formInput}
           />
           <Input
-            placeholder='Last Name'
-            leftIcon={{ type: 'font-awesome', name: 'user-o' }}
-            onChangeText={(lastname) => this.setState({ lastname })}
-            value={this.state.lastname}
+            placeholder=' City'
+            leftIcon={{ type: 'font-awesome', name: 'map-marker' }}
+            onChangeText={(city) => this.setState({ city })}
+            value={this.state.city}
             containerStyle={styles.formInput}
           />
           <Input
-            placeholder='Email'
+            placeholder=' Email'
             leftIcon={{ type: 'font-awesome', name: 'envelope-o' }}
             onChangeText={(email) => this.setState({ email })}
             value={this.state.email}
+            containerStyle={styles.formInput}
+          />
+          <Input
+            placeholder=' Password'
+            leftIcon={{ type: 'font-awesome', name: 'key' }}
+            onChangeText={(password) => this.setState({ password })}
+            value={this.state.password}
             containerStyle={styles.formInput}
           />
           <CheckBox
@@ -268,7 +337,7 @@ class RegisterTab extends Component {
           <View style={styles.formButton}>
             <Button
               onPress={() => this.handleRegister()}
-              title='Register'
+              title=' Register'
               icon={
                 <Icon
                   name='user-plus'
@@ -292,6 +361,10 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
     margin: 20,
+  },
+  camera: {
+    backgroundColor: null,
+    color: 'blue',
   },
   imageContainer: {
     flex: 1,

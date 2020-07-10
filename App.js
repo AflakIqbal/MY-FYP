@@ -1,6 +1,6 @@
 import React from 'react';
-import Main from './components/MainComponent';
-import Landing from './components/landingPage';
+
+import Navigator1 from './components/Navigator1';
 
 import { Provider } from 'react-redux';
 import { ConfigureStore } from './redux/configureStore';
@@ -14,7 +14,7 @@ export default class App extends React.Component {
     return (
       <Provider store={store}>
         <PersistGate loading={<Loading />} persistor={persistor}>
-          <Landing />
+          <Navigator1 />
         </PersistGate>
       </Provider>
     );

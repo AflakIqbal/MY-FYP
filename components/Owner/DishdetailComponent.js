@@ -13,22 +13,22 @@ import {
 } from 'react-native';
 import { Card, Icon, Rating, Input } from 'react-native-elements';
 import { connect } from 'react-redux';
-import { baseUrl } from '../shared/baseUrl';
+import { baseUrl } from '../../shared/baseUrl';
 import * as Animatable from 'react-native-animatable';
-import { postFavorite, postComment } from '../redux/ActionCreators';
+import { postFavorite, postComment } from '../../redux/ActionCreators';
 
 const mapStateToProps = (state) => {
   return {
-    dishes: state.dishes,
-    comments: state.comments,
-    favorites: state.favorites,
+    // dishes: state.dishes,
+    // comments: state.comments,
+    // favorites: state.favorites,
   };
 };
-const mapDispatchToProps = (dispatch) => ({
-  postFavorite: (dishId) => dispatch(postFavorite(dishId)),
-  postComment: (dishId, rating, author, comment) =>
-    dispatch(postComment(dishId, rating, author, comment)),
-});
+// const mapDispatchToProps = (dispatch) => ({
+//   postFavorite: (dishId) => dispatch(postFavorite(dishId)),
+//   postComment: (dishId, rating, author, comment) =>
+//     dispatch(postComment(dishId, rating, author, comment)),
+// });
 
 class DishDetail extends Component {
   constructor(props) {
@@ -73,6 +73,7 @@ class DishDetail extends Component {
         }
       );
     };
+
     const RenderDish = (props) => {
       const dish = props.dish;
       //  var handleViewRef = ref => this.view = ref;
@@ -80,14 +81,17 @@ class DishDetail extends Component {
         if (dx < -200) return true;
         else return false;
       };
+
       const recognizeDragleft = ({ moveX, moveY, dx, dy }) => {
         if (dx > 200) return true;
         else return false;
       };
+
       const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: (e, gestureState) => {
           return true;
         },
+
         onPanResponderEnd: (e, gestureState) => {
           console.log('pan responder end', gestureState);
           if (recognizeDrag(gestureState))
@@ -354,4 +358,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(DishDetail);
+export default DishDetail;
