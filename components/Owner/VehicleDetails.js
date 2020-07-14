@@ -43,7 +43,7 @@ class Dishdetail extends Component {
     console.log(id);
     const token = await AsyncStorage.getItem('token');
     console.log(token);
-    const response = await fetch(baseUrlNode + 'api/vehicle/bookings/' + id, {
+    const response = await fetch(baseUrlNode + 'api/vehicle/booking/' + id, {
       method: 'GET',
       headers: {
         'x-auth-token': token,

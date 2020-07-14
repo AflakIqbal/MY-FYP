@@ -27,6 +27,8 @@ class Reservation extends Component {
       comments: '',
       token: null,
       vehicle: [],
+      booking: [],
+      showModal: false,
     };
   }
 
@@ -57,11 +59,19 @@ class Reservation extends Component {
   };
 
   static navigationOptions = {
-    title: 'Reserve Table',
+    title: 'Book Vehicle',
   };
 
   toggleModal() {
     this.setState({ showModal: !this.state.showModal });
+  }
+
+  ranking() {
+    const { navigate } = this.props.navigation;
+    navigate('feedback', {
+      id: this.state.booking._id,
+      Vid: this.state.vehicle._id,
+    });
   }
 
   handleReservation() {
@@ -78,16 +88,13 @@ class Reservation extends Component {
         comments: this.state.comments,
       }),
     })
-      .then((res) => res.json())
-      .then(async (data) => {
-        try {
-          if (!data.errors) {
-          } else {
-            data.errors.forEach((error) => alert(error.msg));
-          }
-        } catch (e) {
-          console.log('error hai', e);
-        }
+      .then((response) => response.json())
+      .then((responseJson) => {
+        this.setState({ booking: responseJson });
+        console.log(this.state.booking);
+      })
+      .catch((error) => {
+        console.error(error);
       });
 
     this.toggleModal();
@@ -120,8 +127,13 @@ class Reservation extends Component {
   async presentLocalNotification(date) {
     await this.obtainNotificationPermission();
     Notifications.presentLocalNotificationAsync({
-      title: 'Your Reservation',
-      body: 'Reservation for ' + date + ' requested',
+      title: 'Your Booking',
+      body:
+        'Booking done for ' +
+        this.state.vehicle.manufacturer +
+        ' ' +
+        this.state.vehicle.model +
+        ' requested',
       ios: {
         sound: true,
       },
@@ -199,7 +211,7 @@ class Reservation extends Component {
                   { cancelable: false }
                 );
               }}
-              title='Reserve'
+              title=' Book '
               color='#512DA8'
               accessibilityLabel='Learn more about this purple button'
             />
@@ -243,6 +255,7 @@ class Reservation extends Component {
                 onPress={() => {
                   this.toggleModal();
                   this.resetForm();
+                  this.ranking();
                 }}
                 color='#512DA8'
                 title='End Booking'

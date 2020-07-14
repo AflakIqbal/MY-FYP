@@ -18,12 +18,14 @@ import About1 from './Owner/AboutComponent';
 import Contact from './Owner/ContactComponent';
 import Contact1 from './Customer/ContactComponent';
 //import DishDetail from './Owner/DishdetailComponent';
+import current from './Owner/currentBookings';
 import DishDetail from './Owner/VehicleDetails';
 import Book1 from './Customer/BookVehicle';
 import DishDetail1 from './Customer/VehicleDetails';
 import Favorites from './Owner/FavoriteComponent';
 import Reservation from './Owner/ReservationComponent';
 import Reservation1 from './Customer/ReservationComponent';
+import Ranking from './Customer/ranking';
 import Home from './Owner/HomeComponent';
 import UserProfileView from './Owner/profile';
 import UserProfileView1 from './Customer/profile';
@@ -31,6 +33,7 @@ import Booking from './Owner/Booking-History';
 import Booking1 from './Customer/Booking-History';
 import EditInfo from './Owner/EditInformation';
 import RentVehicle from './Customer/RentVehicle';
+import Ranking1 from './Owner/ranking';
 
 import {
   View,
@@ -193,12 +196,25 @@ const AppNavigator = createSwitchNavigator({
       //   }
       // ),
 
-      Booking: createStackNavigator(
+      History: createStackNavigator(
         {
           Booking: Booking,
         },
         {
           initialRouteName: 'Booking',
+          defaultNavigationOptions: {
+            headerShown: true,
+          },
+        }
+      ),
+
+      Bookings: createStackNavigator(
+        {
+          Bookings: current,
+          Feedback: Ranking1,
+        },
+        {
+          initialRouteName: 'Bookings',
           defaultNavigationOptions: {
             headerShown: true,
           },
@@ -280,7 +296,7 @@ const AppNavigator = createSwitchNavigator({
           Vehicles: Menu1,
           Detail: DishDetail1,
           Booking: Book1,
-          New: Reservation1,
+          feedback: Ranking,
         },
         {
           initialRouteName: 'RentVehicle',
