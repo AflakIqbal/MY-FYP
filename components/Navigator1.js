@@ -10,16 +10,27 @@ import { createDrawerNavigator, DrawerItems } from 'react-navigation-drawer';
 
 import Landing from './landingPage';
 import Login from './Owner/LoginComponent';
+import Login1 from './Customer/LoginComponent';
 import Menu from './Owner/MenuComponent';
+import Menu1 from './Customer/MenuComponent';
 import About from './Owner/AboutComponent';
+import About1 from './Owner/AboutComponent';
 import Contact from './Owner/ContactComponent';
+import Contact1 from './Customer/ContactComponent';
 //import DishDetail from './Owner/DishdetailComponent';
 import DishDetail from './Owner/VehicleDetails';
+import Book1 from './Customer/BookVehicle';
+import DishDetail1 from './Customer/VehicleDetails';
 import Favorites from './Owner/FavoriteComponent';
 import Reservation from './Owner/ReservationComponent';
+import Reservation1 from './Customer/ReservationComponent';
 import Home from './Owner/HomeComponent';
 import UserProfileView from './Owner/profile';
+import UserProfileView1 from './Customer/profile';
 import Booking from './Owner/Booking-History';
+import Booking1 from './Customer/Booking-History';
+import EditInfo from './Owner/EditInformation';
+import RentVehicle from './Customer/RentVehicle';
 
 import {
   View,
@@ -100,6 +111,7 @@ const AppNavigator = createSwitchNavigator({
         }),
       },
       Login: Login,
+      Login1: Login1,
     },
     {
       initialRouteName: 'Landing',
@@ -123,6 +135,7 @@ const AppNavigator = createSwitchNavigator({
       Profile: createStackNavigator(
         {
           UserProfileView: UserProfileView,
+          EditInfo: EditInfo,
         },
         {
           initialRouteName: 'UserProfileView',
@@ -168,17 +181,17 @@ const AppNavigator = createSwitchNavigator({
         }
       ),
 
-      Reservation: createStackNavigator(
-        {
-          Reservation: Reservation,
-        },
-        {
-          initialRouteName: 'Reservation',
-          defaultNavigationOptions: {
-            headerShown: true,
-          },
-        }
-      ),
+      // Reservation: createStackNavigator(
+      //   {
+      //     Reservation: Reservation,
+      //   },
+      //   {
+      //     initialRouteName: 'Reservation',
+      //     defaultNavigationOptions: {
+      //       headerShown: true,
+      //     },
+      //   }
+      // ),
 
       Booking: createStackNavigator(
         {
@@ -205,6 +218,115 @@ const AppNavigator = createSwitchNavigator({
       Contact: createStackNavigator(
         {
           Contact: Contact,
+        },
+        {
+          initialRouteName: 'Contact',
+          defaultNavigationOptions: {
+            headerShown: true,
+          },
+        }
+      ),
+    },
+
+    {
+      initialRouteName: 'Profile',
+      drawerBackgroundColor: '#D1C4E9',
+      contentComponent: CustomDrawerContentComponent,
+      defaultNavigationOptions: {
+        headerShown: true,
+      },
+    }
+  ),
+
+  main1: createDrawerNavigator(
+    {
+      Profile: createStackNavigator(
+        {
+          UserProfileView: UserProfileView1,
+        },
+        {
+          initialRouteName: 'UserProfileView',
+          defaultNavigationOptions: {
+            headerShown: true,
+            title: 'My Profile',
+          },
+        }
+      ),
+      // Home: createStackNavigator(
+      //   {
+      //     Home: Home,
+      //   },
+      //   {
+      //     initialRouteName: 'Home',
+      //     defaultNavigationOptions: {
+      //       headerShown: true,
+      //     },
+      //   }
+      // ),
+      About: createStackNavigator(
+        {
+          About: About1,
+        },
+        {
+          initialRouteName: 'About',
+          defaultNavigationOptions: {
+            headerShown: true,
+          },
+        }
+      ),
+      RentVehicle: createStackNavigator(
+        {
+          RentVehicle: RentVehicle,
+          Vehicles: Menu1,
+          Detail: DishDetail1,
+          Booking: Book1,
+          New: Reservation1,
+        },
+        {
+          initialRouteName: 'RentVehicle',
+          defaultNavigationOptions: {
+            headerShown: true,
+          },
+        }
+      ),
+
+      // Reservation: createStackNavigator(
+      //   {
+      //     Reservation: Reservation,
+      //   },
+      //   {
+      //     initialRouteName: 'Reservation',
+      //     defaultNavigationOptions: {
+      //       headerShown: true,
+      //     },
+      //   }
+      // ),
+
+      Booking: createStackNavigator(
+        {
+          Booking: Booking1,
+        },
+        {
+          initialRouteName: 'Booking',
+          defaultNavigationOptions: {
+            headerShown: true,
+          },
+        }
+      ),
+      // Favorites: createStackNavigator(
+      //   {
+      //     Favorites: Favorites,
+      //   },
+      //   {
+      //     initialRouteName: 'Favorites',
+      //     defaultNavigationOptions: {
+      //       headerShown: true,
+      //     },
+      //   }
+      // ),
+      Contact: createStackNavigator(
+        {
+          Contact: Contact1,
         },
         {
           initialRouteName: 'Contact',

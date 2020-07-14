@@ -4,11 +4,11 @@ import { baseUrl } from '../../shared/baseUrl';
 import { baseUrlNode } from '../../shared/baseUrl';
 import { AsyncStorage } from 'react-native';
 
-export default class UserProfileView extends Component {
+export default class UserProfileView1 extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      owner: [],
+      customer: [],
       isLoading: true,
     };
   }
@@ -18,7 +18,7 @@ export default class UserProfileView extends Component {
 
   getData = async () => {
     const token = await AsyncStorage.getItem('token');
-    const response = await fetch(baseUrlNode + 'api/owner/auth', {
+    const response = await fetch(baseUrlNode + 'api/Customer/auth', {
       method: 'GET',
       headers: {
         'x-auth-token': token,
@@ -26,8 +26,8 @@ export default class UserProfileView extends Component {
     })
       .then((response) => response.json())
       .then((responseJson) => {
-        this.setState({ owner: responseJson });
-        console.log(this.state.owner);
+        this.setState({ customer: responseJson });
+        console.log(this.state.customer);
       })
       .catch((error) => {
         console.error(error);
@@ -45,23 +45,22 @@ export default class UserProfileView extends Component {
               source={require('../images/aflak.jpg')}
             />
 
-            <Text style={styles.name}>{this.state.owner.name} </Text>
-            <Text style={styles.userInfo}> {this.state.owner.email} </Text>
+            <Text style={styles.name}>{this.state.customer.name} </Text>
+            <Text style={styles.userInfo}> {this.state.customer.email} </Text>
           </View>
         </View>
 
         <View style={styles.body}>
-          <Text style={styles.data}>Address: {this.state.owner.address}</Text>
-          <Text style={styles.data}>City: {this.state.owner.city}</Text>
-          <Text style={styles.data}>Contact: {this.state.owner.cellPhone}</Text>
           <Text style={styles.data}>
-            {'Designation: Work as Owner at Sawari'}
+            Address: {this.state.customer.address}
           </Text>
-
-          <Button
-            onPress={() => navigate('EditInfo', { owner: this.state.owner })}
-            title=' Add new Vehicle'
-          />
+          <Text style={styles.data}>City: {this.state.customer.city}</Text>
+          <Text style={styles.data}>
+            Contact: {this.state.customer.cellPhone}
+          </Text>
+          <Text style={styles.data}>
+            {'Designation: Work as Customer at Sawari'}
+          </Text>
         </View>
       </View>
     );

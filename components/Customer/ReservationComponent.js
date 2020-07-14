@@ -24,7 +24,7 @@ import { Notifications } from 'expo';
 import * as Permissions from 'expo-permissions';
 import thunk from 'redux-thunk';
 
-class Reservation extends Component {
+class Reservation1 extends Component {
   constructor(props) {
     super(props);
 
@@ -34,11 +34,9 @@ class Reservation extends Component {
       model: '',
       year: 2012,
       seatingCapacity: 0,
-      transmission: 'Manual',
+      transmission: '',
       fare: 0,
-      driver: false,
       showModal: false,
-      city: 'Islamabad',
       token: null,
     };
   }
@@ -64,14 +62,12 @@ class Reservation extends Component {
   resetForm() {
     this.setState({
       type: 'Car',
-      manufacturer: '',
-      model: '',
+      manufacturer: 'Honda',
+      model: 'City',
       year: 2012,
       seatingCapacity: 0,
       transmission: 'Manual',
       fare: 0,
-      city: 'Islamabad',
-      driver: false,
     });
   }
 
@@ -111,7 +107,7 @@ class Reservation extends Component {
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
         allowsEditing: true,
-        aspect: [4, 4],
+        aspect: [4, 3],
         quality: 1,
       });
       if (!result.cancelled) {
@@ -174,20 +170,6 @@ class Reservation extends Component {
             </View>
 
             <View style={styles.formRow}>
-              <Text style={styles.formLabel}>City</Text>
-              <Picker
-                style={styles.formItem}
-                selectedValue={this.state.city}
-                onValueChange={(itemValue, itemIndex) =>
-                  this.setState({ city: itemValue })
-                }
-              >
-                <Picker.Item label='Lahore' value='Lahore' />
-                <Picker.Item label='Islamabad' value='Islamabad' />
-              </Picker>
-            </View>
-
-            <View style={styles.formRow}>
               <Text style={styles.formLabel}>Seating Capacity</Text>
               <Picker
                 style={styles.formItem}
@@ -218,16 +200,6 @@ class Reservation extends Component {
                 <Picker.Item label='Manual' value='manual' />
                 <Picker.Item label='Automatic' value='Automatic' />
               </Picker>
-            </View>
-
-            <View style={styles.formRow1}>
-              <Text style={styles.formLabel1}>Driver</Text>
-              <Switch
-                style={styles.formItem1}
-                value={this.state.driver}
-                trackColor='#512DA8'
-                onValueChange={(value) => this.setState({ driver: value })}
-              ></Switch>
             </View>
 
             <View style={styles.formRow}>
@@ -274,37 +246,91 @@ class Reservation extends Component {
 
             <View style={styles.formRow}>
               <Button
-                onPress={() =>
-                  fetch(baseUrlNode + 'api/vehicle/add', {
-                    method: 'POST',
-                    headers: {
-                      'x-auth-token': this.state.token,
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                      type: this.state.type,
-                      manufacturer: this.state.manufacturer,
-                      model: this.state.model,
-                      year: this.state.year,
-                      seatingCapacity: this.state.seatingCapacity,
-                      transmission: this.state.transmission,
-                      fare: this.state.fare,
-                      city: this.state.city,
-                      driver: this.state.driver,
-                    }),
-                  })
-                    .then((res) => res.json())
-                    .then(async (data) => {
-                      try {
-                        if (!data.errors) {
-                          navigate('Vehicles');
-                        } else {
-                          data.errors.forEach((error) => alert(error.msg));
-                        }
-                      } catch (e) {
-                        console.log('error hai', e);
-                      }
+                onPress={
+                  () =>
+                    fetch(baseUrlNode + 'api/vehicle/add', {
+                      method: 'POST',
+                      headers: {
+                        'x-auth-token': this.state.token,
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        type: this.state.type,
+                        manufacturer: this.state.manufacturer,
+                        model: this.state.model,
+                        year: this.state.year,
+                        seatingCapacity: this.state.seatingCapacity,
+                        transmission: this.state.transmission,
+                        fare: this.state.fare,
+                      }),
                     })
+                      .then((res) => res.json())
+                      .then(async (data) => {
+                        try {
+                          if (!data.errors) {
+                            navigate('Vehicles');
+
+                            // Alert.alert(
+                            //   'Vehicle Added successfully',
+                            //   'Type:' +
+                            //     this.state.type +
+                            //     '\n' +
+                            //     'manufacturer:' +
+                            //     this.state.manufacturer +
+                            //     '\n' +
+                            //     'model' +
+                            //     this.state.model +
+                            //     '\n' +
+                            //     'Year' +
+                            //     this.state.year +
+                            //     '\n' +
+                            //     'Fare' +
+                            //     this.state.fare +
+                            //     '\n' +
+                            //     'Seating Capacity' +
+                            //     this.state.seatingCapacity +
+                            //     '\n' +
+                            //     'Transmition' +
+                            //     this.state.transmission
+                            // );
+                          } else {
+                            data.errors.forEach((error) => alert(error.msg));
+                          }
+                        } catch (e) {
+                          console.log('error hai', e);
+                        }
+                      })
+                  //  {
+                  //   Alert.alert(
+                  //     'Your Reservation OK?',
+                  //     'Number of Guests:' +
+                  //       this.state.guests +
+                  //       '\n' +
+                  //       'Smoking:' +
+                  //       this.state.smoking +
+                  //       '\n' +
+                  //       'Date & Time:' +
+                  //       this.state.date +
+                  //       '\n',
+                  //     [
+                  //       {
+                  //         text: 'Cancel',
+                  //         onPress: () => {
+                  //           this.resetForm();
+                  //         },
+                  //         style: 'cancel',
+                  //       },
+                  //       {
+                  //         text: 'OK',
+                  //         onPress: () => {
+                  //           this.handleReservation();
+                  //           this.presentLocalNotification(this.state.date);
+                  //         },
+                  //       },
+                  //     ],
+                  //     { cancelable: false }
+                  //   );
+                  // }
                 }
                 title='Reserve'
                 color='#512DA8'
@@ -360,20 +386,6 @@ const styles = StyleSheet.create({
     //flex: 1.5,
     fontWeight: 'bold',
   },
-  formRow1: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginLeft: 10,
-    marginRight: 10,
-  },
-  formLabel1: {
-    fontSize: 18,
-    flex: 2,
-    fontWeight: 'bold',
-  },
-  formItem1: {
-    flex: 1,
-  },
   formItem: {
     // flex: 1,
     // justifyContent: 'flex-start',
@@ -411,4 +423,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Reservation;
+export default Reservation1;

@@ -22,9 +22,8 @@ import DatePicker from 'react-native-datepicker';
 import * as Animatable from 'react-native-animatable';
 import { Notifications } from 'expo';
 import * as Permissions from 'expo-permissions';
-import thunk from 'redux-thunk';
 
-class Reservation extends Component {
+class handleEditInfo extends Component {
   constructor(props) {
     super(props);
 
@@ -33,12 +32,10 @@ class Reservation extends Component {
       manufacturer: '',
       model: '',
       year: 2012,
-      seatingCapacity: 0,
+      seatingCapacity: 1,
       transmission: 'Manual',
-      fare: 0,
-      driver: false,
+      fare: 1,
       showModal: false,
-      city: 'Islamabad',
       token: null,
     };
   }
@@ -56,7 +53,7 @@ class Reservation extends Component {
     this.setState({ showModal: !this.state.showModal });
   }
 
-  handleReservation() {
+  handlehandleEditInfo() {
     console.log(JSON.stringify(this.state));
     this.toggleModal();
   }
@@ -64,14 +61,12 @@ class Reservation extends Component {
   resetForm() {
     this.setState({
       type: 'Car',
-      manufacturer: '',
-      model: '',
+      manufacturer: 'Honda',
+      model: 'City',
       year: 2012,
-      seatingCapacity: 0,
-      transmission: 'Manual',
-      fare: 0,
-      city: 'Islamabad',
-      driver: false,
+      seatingCapacity: 1,
+      transmission: 'automatic',
+      fare: 1,
     });
   }
 
@@ -111,7 +106,7 @@ class Reservation extends Component {
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
         allowsEditing: true,
-        aspect: [4, 4],
+        aspect: [4, 3],
         quality: 1,
       });
       if (!result.cancelled) {
@@ -125,12 +120,11 @@ class Reservation extends Component {
   };
 
   render() {
-    const { navigate } = this.props.navigation;
     return (
       <Card>
         <ScrollView>
           <Animatable.View animation='zoomIn' duration={3000}>
-            <View style={styles.imageContainer}>
+            {/* <View style={styles.imageContainer}>
               <Image
                 source={{ uri: this.state.imageUrl }}
                 loadingIndicatorSource={require('../images/logo.png')}
@@ -158,155 +152,159 @@ class Reservation extends Component {
                   textDecorationLine: 'underline',
                 }}
               />
-            </View>
-            <View style={styles.formRow}>
-              <Text style={styles.formLabel}>Type</Text>
-              <Picker
-                style={styles.formItem}
-                selectedValue={this.state.type}
-                onValueChange={(itemValue, itemIndex) =>
-                  this.setState({ type: itemValue })
-                }
-              >
-                <Picker.Item label='Bike' value='Bike' />
-                <Picker.Item label='Car' value='Car' />
-              </Picker>
-            </View>
+            </View> */}
 
             <View style={styles.formRow}>
-              <Text style={styles.formLabel}>City</Text>
-              <Picker
-                style={styles.formItem}
-                selectedValue={this.state.city}
-                onValueChange={(itemValue, itemIndex) =>
-                  this.setState({ city: itemValue })
-                }
-              >
-                <Picker.Item label='Lahore' value='Lahore' />
-                <Picker.Item label='Islamabad' value='Islamabad' />
-              </Picker>
-            </View>
-
-            <View style={styles.formRow}>
-              <Text style={styles.formLabel}>Seating Capacity</Text>
-              <Picker
-                style={styles.formItem}
-                selectedValue={this.state.seatingCapacity}
-                onValueChange={(Value, itemIndex) =>
-                  this.setState({ seatingCapacity: Value })
-                }
-              >
-                <Picker.Item label='1' value='1' />
-                <Picker.Item label='2' value='2' />
-                <Picker.Item label='3' value='3' />
-                <Picker.Item label='4' value='4' />
-                <Picker.Item label='5' value='5' />
-                <Picker.Item label='6' value='6' />
-                <Picker.Item label='7' value='7' />
-              </Picker>
-            </View>
-
-            <View style={styles.formRow}>
-              <Text style={styles.formLabel}>transmission</Text>
-              <Picker
-                style={styles.formItem}
-                selectedValue={this.state.transmission}
-                onValueChange={(itemValue, itemIndex) =>
-                  this.setState({ transmission: itemValue })
-                }
-              >
-                <Picker.Item label='Manual' value='manual' />
-                <Picker.Item label='Automatic' value='Automatic' />
-              </Picker>
-            </View>
-
-            <View style={styles.formRow1}>
-              <Text style={styles.formLabel1}>Driver</Text>
-              <Switch
-                style={styles.formItem1}
-                value={this.state.driver}
-                trackColor='#512DA8'
-                onValueChange={(value) => this.setState({ driver: value })}
-              ></Switch>
-            </View>
-
-            <View style={styles.formRow}>
-              <Text style={styles.formLabel}>Manufacturer</Text>
+              <Text style={styles.formLabel}>Name</Text>
 
               <Input
                 style={styles.formItem}
-                placeholder='Honda, Toyota etc'
-                onChangeText={(manufacturer) => this.setState({ manufacturer })}
-                value={this.state.manufacturer}
+                placeholder=''
+                onChangeText={(name) => this.setState({ name })}
+                value={this.state.name}
               />
             </View>
             <View style={styles.formRow}>
-              <Text style={styles.formLabel}>Model</Text>
+              <Text style={styles.formLabel}>Email</Text>
 
               <Input
                 style={styles.formItem}
                 placeholder='City, Civic etc'
-                onChangeText={(model) => this.setState({ model })}
-                value={this.state.model}
+                onChangeText={(email) => this.setState({ email })}
+                value={this.state.email}
               />
             </View>
             <View style={styles.formRow}>
-              <Text style={styles.formLabel}>Register Year</Text>
+              <Text style={styles.formLabel}>City</Text>
 
               <Input
                 style={styles.formItem}
                 placeholder='2013 etc'
-                onChangeText={(year) => this.setState({ year })}
-                value={this.state.year}
+                onChangeText={(city) => this.setState({ city })}
+                value={this.state.city}
               />
             </View>
 
             <View style={styles.formRow}>
-              <Text style={styles.formLabel}>Fare</Text>
+              <Text style={styles.formLabel}>Contact</Text>
 
               <Input
                 style={styles.formItem}
                 placeholder='300 etc'
-                onChangeText={(fare) => this.setState({ fare })}
-                value={this.state.fare}
+                onChangeText={(cellPhone) => this.setState({ cellPhone })}
+                value={this.state.cellPhone}
+              />
+            </View>
+
+            <View style={styles.formRow}>
+              <Text style={styles.formLabel}>Address</Text>
+
+              <Input
+                style={styles.formItem}
+                placeholder='300 etc'
+                onChangeText={(address) => this.setState({ address })}
+                value={this.state.address}
+              />
+            </View>
+
+            <View style={styles.formRow}>
+              <Text style={styles.formLabel}>Password</Text>
+
+              <Input
+                style={styles.formItem}
+                placeholder='300 etc'
+                onChangeText={(password) => this.setState({ password })}
+                value={this.state.password}
               />
             </View>
 
             <View style={styles.formRow}>
               <Button
-                onPress={() =>
-                  fetch(baseUrlNode + 'api/vehicle/add', {
-                    method: 'POST',
-                    headers: {
-                      'x-auth-token': this.state.token,
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                      type: this.state.type,
-                      manufacturer: this.state.manufacturer,
-                      model: this.state.model,
-                      year: this.state.year,
-                      seatingCapacity: this.state.seatingCapacity,
-                      transmission: this.state.transmission,
-                      fare: this.state.fare,
-                      city: this.state.city,
-                      driver: this.state.driver,
-                    }),
-                  })
-                    .then((res) => res.json())
-                    .then(async (data) => {
-                      try {
-                        if (!data.errors) {
-                          navigate('Vehicles');
-                        } else {
-                          data.errors.forEach((error) => alert(error.msg));
-                        }
-                      } catch (e) {
-                        console.log('error hai', e);
-                      }
+                onPress={
+                  () =>
+                    fetch(baseUrlNode + 'api/vehicle/add', {
+                      method: 'POST',
+                      headers: {
+                        'x-auth-token': this.state.token,
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        type: this.state.type,
+                        manufacturer: this.state.manufacturer,
+                        model: this.state.model,
+                        year: this.state.year,
+                        seatingCapacity: this.state.seatingCapacity,
+                        transmission: this.state.transmission,
+                        fare: this.state.fare,
+                      }),
                     })
+                      .then((res) => res.json())
+                      .then(async (data) => {
+                        try {
+                          if (!data.errors) {
+                            Alert.alert(
+                              'Vehicle Added successfully',
+                              'Type:' +
+                                this.state.type +
+                                '\n' +
+                                'manufacturer:' +
+                                this.state.manufacturer +
+                                '\n' +
+                                'model' +
+                                this.state.model +
+                                '\n' +
+                                'Year' +
+                                this.state.year +
+                                '\n' +
+                                'Fare' +
+                                this.state.fare +
+                                '\n' +
+                                'Seating Capacity' +
+                                this.state.seatingCapacity +
+                                '\n' +
+                                'Transmition' +
+                                this.state.transmission
+                            );
+                          } else {
+                            data.errors.forEach((error) => alert(error.msg));
+                          }
+                        } catch (e) {
+                          console.log('error hai', e);
+                        }
+                      })
+                  //  {
+                  //   Alert.alert(
+                  //     'Your handleEditInfo OK?',
+                  //     'Number of Guests:' +
+                  //       this.state.guests +
+                  //       '\n' +
+                  //       'Smoking:' +
+                  //       this.state.smoking +
+                  //       '\n' +
+                  //       'Date & Time:' +
+                  //       this.state.date +
+                  //       '\n',
+                  //     [
+                  //       {
+                  //         text: 'Cancel',
+                  //         onPress: () => {
+                  //           this.resetForm();
+                  //         },
+                  //         style: 'cancel',
+                  //       },
+                  //       {
+                  //         text: 'OK',
+                  //         onPress: () => {
+                  //           this.handlehandleEditInfo();
+                  //           this.presentLocalNotification(this.state.date);
+                  //         },
+                  //       },
+                  //     ],
+                  //     { cancelable: false }
+                  //   );
+                  // }
                 }
-                title='Reserve'
+                title='Submit'
                 color='#512DA8'
                 accessibilityLabel='Learn more about this purple button'
               />
@@ -319,7 +317,7 @@ class Reservation extends Component {
               onRequestClose={() => this.toggleModal()}
             >
               <View style={styles.modal}>
-                <Text style={styles.modalTitle}>Your Reservation</Text>
+                <Text style={styles.modalTitle}>Your handleEditInfo</Text>
                 <Text style={styles.modalText}>
                   Number of Guests: {this.state.guests}
                 </Text>
@@ -360,20 +358,6 @@ const styles = StyleSheet.create({
     //flex: 1.5,
     fontWeight: 'bold',
   },
-  formRow1: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginLeft: 10,
-    marginRight: 10,
-  },
-  formLabel1: {
-    fontSize: 18,
-    flex: 2,
-    fontWeight: 'bold',
-  },
-  formItem1: {
-    flex: 1,
-  },
   formItem: {
     // flex: 1,
     // justifyContent: 'flex-start',
@@ -411,4 +395,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Reservation;
+export default handleEditInfo;

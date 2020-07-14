@@ -48,7 +48,7 @@ class LoginTab extends Component {
   };
 
   handleLogin() {
-    fetch(baseUrlNode + 'api/owner/auth/login', {
+    fetch(baseUrlNode + 'api/Customer/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ class LoginTab extends Component {
           if (!data.errors) {
             await AsyncStorage.setItem('token', data.token);
             const token = await AsyncStorage.getItem('token');
-            this.props.navigation.navigate('main');
+            this.props.navigation.navigate('main1');
           } else {
             data.errors.forEach((error) => alert(error.msg));
           }
@@ -202,7 +202,7 @@ class RegisterTab extends Component {
 
   handleRegister() {
     console.log('yahan a raha');
-    fetch(baseUrlNode + 'api/owner/register', {
+    fetch(baseUrlNode + 'api/customer/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const Login = createBottomTabNavigator(
+const Login1 = createBottomTabNavigator(
   {
     Login: LoginTab,
     Register: RegisterTab,
@@ -407,4 +407,4 @@ const Login = createBottomTabNavigator(
   }
 );
 
-export default Login;
+export default Login1;

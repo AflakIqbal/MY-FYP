@@ -19,6 +19,10 @@ class Landing extends Component {
     this.props.navigation.navigate('Login');
   }
 
+  customer() {
+    this.props.navigation.navigate('Login1');
+  }
+
   render() {
     return (
       <Animatable.View
@@ -51,7 +55,7 @@ class Landing extends Component {
           title=' Customer'
           buttonStyle={styles.button}
           icon={<Icon name='user' type='font-awesome' color='white' />}
-          onPress={this.sendMail}
+          onPress={() => this.customer()}
         />
         <Image
           style={styles.image2}

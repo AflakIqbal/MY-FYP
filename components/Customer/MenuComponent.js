@@ -30,7 +30,7 @@ console.disableYellowBox = true;
 //   };
 // };
 
-class Menu extends Component {
+class Menu1 extends Component {
   // static navigationOptions = {
   //   title: 'Menu',
   // };
@@ -41,11 +41,20 @@ class Menu extends Component {
       isLoading: true,
       token: null,
       counter: true,
+      type: '',
+      city: '',
+      driver: '',
     };
   }
 
   componentDidMount() {
-    this.getData();
+    const type = this.props.navigation.getParam('type', '');
+    const city = this.props.navigation.getParam('city', '');
+    const driver = this.props.navigation.getParam('driver', '');
+
+    console.log(type);
+
+    this.getData(type, city, driver);
   }
 
   usespinner = () => {
@@ -65,16 +74,19 @@ class Menu extends Component {
   // }
   //}
 
-  getData = async () => {
+  getData = async (type, city, driver) => {
     const token = await AsyncStorage.getItem('token');
     this.setState({ token: token });
     console.log(token);
-    const response = await fetch(baseUrlNode + 'api/vehicle/ownerVehicle', {
-      method: 'GET',
-      headers: {
-        'x-auth-token': token,
-      },
-    })
+    const response = await fetch(
+      baseUrlNode + 'api/vehicle/vehicles/' + type + '/' + city + '/' + driver,
+      {
+        method: 'GET',
+        headers: {
+          'x-auth-token': token,
+        },
+      }
+    )
       .then((response) => response.json())
       .then((responseJson) => {
         console.log(responseJson);
@@ -156,9 +168,8 @@ class Menu extends Component {
         },
       ];
       return (
-        <Swipeout right={rightButton} autoClose={true}>
-          <Animatable.View animation='fadeInRightBig' duration={2000}>
-            {/* <View style={Styles.main}>
+        <Animatable.View animation='fadeInRightBig' duration={2000}>
+          {/* <View style={Styles.main}>
             <View style={{ flex: 2 }}>
               <Image source={require('../images/car.jpg')} style={Styles.img} />
             </View>
@@ -167,39 +178,31 @@ class Menu extends Component {
               <Text>Car</Text>
             </View>
           </View> */}
-            <ListItem
-              style={Styles.list}
-              key={index}
-              title={
-                'Type: ' +
-                item.type +
-                '\n' +
-                item.manufacturer +
-                ' ' +
-                item.model
-              }
-              subtitle={
-                'Vehicle model: ' +
-                item.year +
-                '\n' +
-                'Booking: ' +
-                item.available
-              }
-              hideChevron={true}
-              leftAvatar={{ source: require('../images/car.jpg') }}
-              onPress={() => navigate('Detail', { vehicle: item })}
-            />
-          </Animatable.View>
-        </Swipeout>
+          <ListItem
+            style={Styles.list}
+            key={index}
+            title={
+              'Type: ' + item.type + '\n' + item.manufacturer + ' ' + item.model
+            }
+            subtitle={
+              'Vehicle model: ' +
+              item.year +
+              '\n' +
+              'Booking: ' +
+              item.available
+            }
+            hideChevron={true}
+            leftAvatar={{ source: require('../images/car.jpg') }}
+            onPress={() => navigate('Detail', { vehicle: item })}
+          />
+        </Animatable.View>
       );
     };
 
     return (
       <ScrollView>
         <FlatList data={this.state.vehicles} renderItem={renderMenuItem} />
-        <View style={Styles.button}>
-          <Button onPress={() => navigate('New')} title=' Add new Vehicle' />
-        </View>
+
         {/* refreshControl=
         {<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} */}
         {this.usespinner()}
@@ -233,4 +236,4 @@ const Styles = StyleSheet.create({
     flexDirection: 'row',
   },
 });
-export default Menu;
+export default Menu1;

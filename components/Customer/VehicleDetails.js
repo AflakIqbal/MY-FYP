@@ -6,6 +6,7 @@ import {
   Input,
   ListItem,
   Tile,
+  Button,
 } from 'react-native-elements';
 
 import { baseUrlNode } from '../../shared/baseUrl';
@@ -20,7 +21,7 @@ import {
   Share,
 } from 'react-native';
 
-class Dishdetail extends Component {
+class Dishdetail1 extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -66,6 +67,7 @@ class Dishdetail extends Component {
   //     title: 'Vehicle Details',
   //   };
   render() {
+    const { navigate } = this.props.navigation;
     const shareDish = (title, message, url) => {
       Share.share(
         {
@@ -110,6 +112,25 @@ class Dishdetail extends Component {
       );
     };
 
+    const RenderButton = () => {
+      const vehicle = this.state.vehicle;
+      if (vehicle) {
+        return (
+          <Button
+            title='Book Vehicle'
+            buttonStyle={styles.button}
+            // icon={<Icon name='user' type='font-awesome' color='white' />}
+            onPress={() =>
+              navigate('Booking', {
+                id: vehicle._id,
+              })
+            }
+          />
+        );
+      } else
+        return <Button title='Already Booked' buttonStyle={styles.button} />;
+    };
+
     const RenderDish = () => {
       const vehicle = this.state.vehicle;
 
@@ -127,20 +148,7 @@ class Dishdetail extends Component {
             <Text style={styles.text}>Transmition: {vehicle.transmission}</Text>
             <Text style={styles.text}>Fair: {vehicle.fare}</Text>
             <View style={styles.card}>
-              <Icon
-                raised
-                reverse
-                name='share'
-                type='font-awesome'
-                color='#51D2A8'
-                onPress={() =>
-                  shareDish(
-                    vehicle.type,
-                    vehicle.manufacturer,
-                    '../images/car.jpg'
-                  )
-                }
-              />
+              <RenderButton />
             </View>
           </Card>
         );
@@ -163,6 +171,14 @@ class Dishdetail extends Component {
 }
 
 const styles = StyleSheet.create({
+  button: {
+    backgroundColor: '#512DA8',
+    borderRadius: 50,
+    margin: 10,
+    alignSelf: 'center',
+    //marginLeft: 60,
+    width: 200,
+  },
   //   container: {
   //     flex: 1,
   //   },
@@ -197,4 +213,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Dishdetail;
+export default Dishdetail1;
