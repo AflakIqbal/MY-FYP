@@ -16,7 +16,6 @@ import {
 import Swipeout from 'react-native-swipeout';
 
 import { ListItem, Tile } from 'react-native-elements';
-import { DISHES } from '../../shared/dishes';
 import { connect } from 'react-redux';
 import { baseUrl } from '../../shared/baseUrl';
 import { Loading } from '../LoadingComponent';
@@ -41,11 +40,19 @@ class Menu extends Component {
       isLoading: true,
       token: null,
       counter: true,
+      refreshing: false,
+      page: 1,
+      seed: 1,
     };
   }
 
   componentDidMount() {
     this.getData();
+    this.listener = this.props.navigation.addListener('didFocus', this.getData);
+  }
+
+  componentWillUnmount() {
+    this.listener.remove();
   }
 
   usespinner = () => {
@@ -57,13 +64,12 @@ class Menu extends Component {
     // }
   };
 
-  //componentDidUpdate() {
-
-  // if (this.state.counter) {
-  //   this.getData();
-  //   this.setState({ counter: false });
+  // componentDidUpdate() {
+  //   if (this.state.counter) {
+  //     this.getData();
+  //     this.setState({ counter: false });
+  //   }
   // }
-  //}
 
   getData = async () => {
     const token = await AsyncStorage.getItem('token');
@@ -86,6 +92,20 @@ class Menu extends Component {
         console.error(error);
         console.log('error araha');
       });
+    //this.setState({ counter: true });
+  };
+
+  handleRefresh = () => {
+    this.setState(
+      {
+        page: 1,
+        refreshing: true,
+        seed: this.state.seed + 1,
+      },
+      () => {
+        this.getData();
+      }
+    );
   };
 
   // wait = (timeout) => {
@@ -112,7 +132,7 @@ class Menu extends Component {
     const renderMenuItem = ({ item, index }) => {
       const rightButton = [
         {
-          text: 'Delete',
+          text: 'Deletee',
           type: 'delete',
           onPress: () => {
             Alert.alert(
@@ -186,7 +206,7 @@ class Menu extends Component {
                 item.available
               }
               hideChevron={true}
-              leftAvatar={{ source: require('../images/car.jpg') }}
+              leftAvatar={{ source: { uri: item.imageURI } }}
               onPress={() => navigate('Detail', { vehicle: item })}
             />
           </Animatable.View>
@@ -198,7 +218,12 @@ class Menu extends Component {
       <ScrollView>
         <FlatList data={this.state.vehicles} renderItem={renderMenuItem} />
         <View style={Styles.button}>
-          <Button onPress={() => navigate('New')} title=' Add new Vehicle' />
+          <Button
+            onPress={() => navigate('New')}
+            title=' Add new Vehicle'
+            refreshing={this.state.refreshing}
+            onRefresh={this.handleRefresh}
+          />
         </View>
         {/* refreshControl=
         {<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} */}

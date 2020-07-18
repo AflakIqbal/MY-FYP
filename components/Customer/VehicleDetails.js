@@ -32,14 +32,20 @@ class Dishdetail1 extends Component {
 
   componentDidMount() {
     const vehicle1 = this.props.navigation.getParam('vehicle');
-    console.log(vehicle1);
+
     this.setState({ vehicle: vehicle1 });
-    console.log('1st');
-    console.log(vehicle1._id);
-    this.getData(vehicle1._id);
+    this.getData();
+    this.listener = this.props.navigation.addListener('didFocus', this.getData);
   }
 
-  getData = async (id) => {
+  componentWillUnmount() {
+    this.listener.remove();
+  }
+
+  getData = async () => {
+    const vehicle1 = this.props.navigation.getParam('vehicle');
+    const id = vehicle1._id;
+
     console.log('2nd');
     console.log(id);
     const token = await AsyncStorage.getItem('token');
@@ -136,7 +142,7 @@ class Dishdetail1 extends Component {
 
       if (vehicle != null) {
         return (
-          <Card image={require('../images/car.jpg')}>
+          <Card image={{ uri: this.state.vehicle.imageURI }}>
             <Text style={styles.text}>Vehicle Type: {vehicle.type}</Text>
             <Text style={styles.text}>
               Model: {vehicle.manufacturer} {vehicle.model}

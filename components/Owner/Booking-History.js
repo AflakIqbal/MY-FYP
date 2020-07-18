@@ -8,12 +8,15 @@ import {
   AsyncStorage,
   ScrollView,
   Text,
+  Textarea,
   Image,
   Button,
+  Modal,
+  TextInput,
 } from 'react-native';
-import { ListItem, Tile, Card, Rating } from 'react-native-elements';
 
-import { DISHES } from '../../shared/dishes';
+import { ListItem, Tile, Card, Rating, Input } from 'react-native-elements';
+
 import { connect } from 'react-redux';
 import { baseUrl } from '../../shared/baseUrl';
 import { Loading } from '../LoadingComponent';
@@ -36,11 +39,28 @@ class Booking extends Component {
     this.state = {
       booking: [],
       isLoading: true,
+      showModal: false,
+      id: '',
+      report: '',
     };
   }
 
   componentDidMount() {
     this.getData();
+    this.listener = this.props.navigation.addListener('didFocus', this.getData);
+  }
+
+  componentWillUnmount() {
+    this.listener.remove();
+  }
+
+  setID(id) {
+    this.setState({ id: id });
+  }
+
+  toggleModal() {
+    this.setState({ showModal: !this.state.showModal });
+    this.componentDidMount();
   }
 
   getData = async () => {
@@ -60,6 +80,33 @@ class Booking extends Component {
       .catch((error) => {
         console.error(error);
         console.log('error araha');
+      });
+  };
+
+  submitReporty = async () => {
+    const id = this.state.id;
+    const token = await AsyncStorage.getItem('token');
+    fetch(baseUrlNode + 'api/owner/reportCustomer/' + id, {
+      method: 'POST',
+      headers: {
+        'x-auth-token': token,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        report: this.state.report,
+      }),
+    })
+      .then((res) => res.json())
+      .then(async (data) => {
+        try {
+          if (!data.errors) {
+            console.log('no error');
+          } else {
+            data.errors.forEach((error) => alert(error.msg));
+          }
+        } catch (e) {
+          console.log('error hai', e);
+        }
       });
   };
 
@@ -94,10 +141,56 @@ class Booking extends Component {
 
             <Text style={Styles.text1}>Your Comments</Text>
             <Text style={Styles.text}>{item.cusomterFeedback.feedback}</Text>
-            <Text style={{ fontSize: 14, fontFamily: 'serif', marginTop: 5 }}>
+            <Text
+              style={{
+                fontSize: 14,
+                fontFamily: 'serif',
+                marginTop: 5,
+                marginBottom: 10,
+              }}
+            >
               Dated: {item.date}
             </Text>
+            <Button
+              onPress={() => {
+                this.setID(item.customer._id);
+                this.toggleModal();
+              }}
+              color='#512DA8'
+              title='Submit Report?'
+            />
           </View>
+          <Modal
+            animationType={'slide'}
+            transparent={false}
+            visible={this.state.showModal}
+            onDismiss={() => this.toggleModal()}
+            onRequestClose={() => this.toggleModal()}
+          >
+            <View style={Styles.modal}>
+              <Text style={Styles.modalTitle}>Write Report</Text>
+
+              <TextInput
+                style={{
+                  height: 50,
+                  borderColor: 'gray',
+                  borderWidth: 1,
+                  margin: 10,
+                }}
+                onChangeText={(report) => this.setState({ report })}
+                value={this.state.report}
+              />
+
+              <Button
+                onPress={() => {
+                  this.submitReporty();
+                  this.toggleModal();
+                }}
+                color='#512DA8'
+                title='Done'
+              />
+            </View>
+          </Modal>
         </Card>
       );
     };
@@ -113,6 +206,22 @@ class Booking extends Component {
 const Styles = StyleSheet.create({
   list: {
     marginBottom: 2,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    backgroundColor: '#512DA8',
+    textAlign: 'center',
+    color: 'white',
+    marginBottom: 20,
+  },
+  modalText: {
+    fontSize: 18,
+    margin: 10,
+  },
+  modal: {
+    justifyContent: 'center',
+    margin: 20,
   },
   img: {
     margin: 10,

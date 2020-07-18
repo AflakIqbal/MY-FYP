@@ -23,7 +23,7 @@ import * as Animatable from 'react-native-animatable';
 import { Notifications } from 'expo';
 import * as Permissions from 'expo-permissions';
 
-class handleEditInfo extends Component {
+class handleEditInfo1 extends Component {
   constructor(props) {
     super(props);
 
@@ -39,13 +39,13 @@ class handleEditInfo extends Component {
   componentDidMount = async () => {
     const token1 = await AsyncStorage.getItem('token');
     this.setState({ token: token1 });
-    const owner = this.props.navigation.getParam('owner', '');
+    const customer = this.props.navigation.getParam('customer', '');
     this.setState({
-      name: owner.name,
-      cellPhone: owner.cellPhone,
-      city: owner.city,
-      address: owner.address,
-      email: owner.email,
+      name: customer.name,
+      cellPhone: customer.cellPhone,
+      city: customer.city,
+      address: customer.address,
+      email: customer.email,
     });
   };
 
@@ -124,7 +124,7 @@ class handleEditInfo extends Component {
             <View style={styles.formRow}>
               <Button
                 onPress={() => {
-                  fetch(baseUrlNode + 'api/owner/update', {
+                  fetch(baseUrlNode + 'api/customer/update', {
                     method: 'PUT',
                     headers: {
                       'x-auth-token': this.state.token,
@@ -214,4 +214,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default handleEditInfo;
+export default handleEditInfo1;

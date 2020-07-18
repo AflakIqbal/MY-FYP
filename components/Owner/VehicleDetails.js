@@ -115,7 +115,7 @@ class Dishdetail extends Component {
 
       if (vehicle != null) {
         return (
-          <Card image={require('../images/car.jpg')}>
+          <Card image={{ uri: this.state.vehicle.imageURI }}>
             <Text style={styles.text}>Vehicle Type: {vehicle.type}</Text>
             <Text style={styles.text}>
               Model: {vehicle.manufacturer} {vehicle.model}

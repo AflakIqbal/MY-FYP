@@ -14,6 +14,11 @@ export default class UserProfileView1 extends Component {
   }
   componentDidMount() {
     this.getData();
+    this.listener = this.props.navigation.addListener('didFocus', this.getData);
+  }
+
+  componentWillUnmount() {
+    this.listener.remove();
   }
 
   getData = async () => {
@@ -42,7 +47,7 @@ export default class UserProfileView1 extends Component {
           <View style={styles.headerContent}>
             <Image
               style={styles.avatar}
-              source={require('../images/aflak.jpg')}
+              source={{ uri: this.state.customer.imageURI }}
             />
 
             <Text style={styles.name}>{this.state.customer.name} </Text>
@@ -61,6 +66,12 @@ export default class UserProfileView1 extends Component {
           <Text style={styles.data}>
             {'Designation: Work as Customer at Sawari'}
           </Text>
+          <Button
+            onPress={() =>
+              navigate('EditInfo', { customer: this.state.customer })
+            }
+            title=' Edit Information'
+          />
         </View>
       </View>
     );

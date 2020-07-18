@@ -10,10 +10,12 @@ import {
   Alert,
   Image,
   TextInput,
+  TouchableOpacity,
 } from 'react-native';
 import { AsyncStorage } from 'react-native';
 import { baseUrlNode } from '../../shared/baseUrl';
-
+import ImageBrowser from '../ImagePicker/ImageBrowser';
+import { MaterialCommunityIcons } from 'react-native-vector-icons';
 import { Input, CheckBox, Icon, Card, Button } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker';
 import { Asset } from 'expo-asset';
@@ -23,7 +25,7 @@ import * as Animatable from 'react-native-animatable';
 import { Notifications } from 'expo';
 import * as Permissions from 'expo-permissions';
 import thunk from 'redux-thunk';
-
+var cPhotos = [];
 class Reservation extends Component {
   constructor(props) {
     super(props);
@@ -40,12 +42,14 @@ class Reservation extends Component {
       showModal: false,
       city: 'Islamabad',
       token: null,
+      showGallery: false,
     };
   }
 
   componentDidMount = async () => {
     const token1 = await AsyncStorage.getItem('token');
     this.setState({ token: token1 });
+    cPhotos = [];
   };
 
   static navigationOptions = {
@@ -55,10 +59,63 @@ class Reservation extends Component {
   toggleModal() {
     this.setState({ showModal: !this.state.showModal });
   }
-
+  saveImage() {
+    const Image = this.state.ImageSelected[0];
+    if (Image) {
+      const API = baseUrlNode + 'api/owner/uploadPhoto';
+      console.log(API);
+      const fd = new FormData();
+      fd.append('photo', Image);
+      let data = {
+        body: fd,
+        method: 'POST',
+      };
+      fetch(API, data)
+        .then((res) => res.json())
+        .then((result) => {
+          if (result.read) {
+            console.log(result.url);
+            this.setState({ imageUrl: result.url });
+            this.handleReservation();
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }
   handleReservation() {
-    console.log(JSON.stringify(this.state));
-    this.toggleModal();
+    fetch(baseUrlNode + 'api/vehicle/add', {
+      method: 'POST',
+      headers: {
+        'x-auth-token': this.state.token,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        type: this.state.type,
+        manufacturer: this.state.manufacturer,
+        model: this.state.model,
+        year: this.state.year,
+        seatingCapacity: this.state.seatingCapacity,
+        transmission: this.state.transmission,
+        fare: this.state.fare,
+        city: this.state.city,
+        driver: this.state.driver,
+        imageURI: this.state.imageUrl,
+      }),
+    })
+      .then((res) => res.json())
+      .then(async (data) => {
+        try {
+          if (!data.errors) {
+            this.props.navigation.navigate('Vehicles');
+          } else {
+            data.errors.forEach((error) => alert(error.msg));
+          }
+        } catch (e) {
+          console.log('error hai', e);
+        }
+      });
   }
 
   resetForm() {
@@ -124,11 +181,128 @@ class Reservation extends Component {
     }
   };
 
+  imagesCallback = (callback) => {
+    // console.log('Called OnSubmit');
+    callback
+      .then((photos) => {
+        for (let photo of photos) {
+          cPhotos.push({
+            uri:
+              Platform.OS === 'android'
+                ? photo.uri
+                : photo.uri.replace('file://', ''),
+            name: photo.filename,
+            type: 'image/jpg',
+          });
+        }
+        // this.setState({capturedImages:cPhotos});
+        if (cPhotos.length > 0) {
+          this.setState({
+            showGallery: false,
+            HeaderGallery: 'Select Images To Upload',
+            ImageSelected: cPhotos,
+            imageUrl: cPhotos[0].uri,
+          });
+          cPhotos = [];
+        }
+      })
+      .catch((e) => console.log(e));
+  };
+  updateHandler = (count, onSubmit) => {
+    if (count == 0) {
+      this.setState({ HeaderGallery: 'Select Images To Upload' });
+    } else {
+      this.setState({ submitFunction: onSubmit });
+      this.setState({ HeaderGallery: count + ' Images Selected' });
+    }
+  };
+  renderSelectedComponent = (number) => (
+    <View style={styles.countBadge}>
+      <Text style={styles.countBadgeText}>{number}</Text>
+    </View>
+  );
+
+  noCameraPermissionComponent = () => (
+    <View>
+      <Text>Camera not allowed</Text>
+    </View>
+  );
+
+  emptyStayComponent = () => (
+    <View>
+      <Text>Empty Component</Text>
+    </View>
+  );
+
   render() {
     const { navigate } = this.props.navigation;
     return (
       <Card>
         <ScrollView>
+          <Modal
+            visible={this.state.showGallery}
+            onRequestClose={() =>
+              this.setState({
+                showGallery: false,
+              })
+            }
+            onDismiss={() =>
+              this.setState({
+                showGallery: false,
+              })
+            }
+          >
+            <View style={[styles.flex, styles.container]}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  backgroundColor: 'white',
+                  marginBottom: 10,
+                  height: 60,
+                  borderWidth: 0.5,
+                  borderColor: '#512DA8',
+                  borderRadius: 20,
+                }}
+              >
+                <Text
+                  style={{
+                    flex: 1,
+                    color: 'black',
+                    textAlign: 'center',
+                    textAlignVertical: 'center',
+                    fontSize: 18,
+                    fontWeight: 'bold',
+                    paddingLeft: 6,
+                  }}
+                >
+                  Select Profile Image
+                </Text>
+                <TouchableOpacity
+                  style={{ padding: 5, marginTop: 8, marginRight: 7 }}
+                  onPress={() => {
+                    if (this.state.submitFunction == null) {
+                    } else {
+                      this.state.submitFunction();
+                    }
+                  }}
+                >
+                  <MaterialCommunityIcons
+                    name='done-all'
+                    size={32}
+                    color='#512DA8'
+                  />
+                </TouchableOpacity>
+              </View>
+              <ImageBrowser
+                max={1}
+                onChange={this.updateHandler}
+                callback={this.imagesCallback}
+                renderSelectedComponent={this.renderSelectedComponent}
+                emptyStayComponent={this.emptyStayComponent}
+                noCameraPermissionComponent={this.noCameraPermissionComponent}
+              />
+            </View>
+          </Modal>
           <Animatable.View animation='zoomIn' duration={3000}>
             <View style={styles.imageContainer}>
               <Image
@@ -136,7 +310,7 @@ class Reservation extends Component {
                 loadingIndicatorSource={require('../images/logo.png')}
                 style={styles.image}
               />
-              <Button
+              {/* <Button
                 title='Camera'
                 onPress={this.getImageFromCamera}
                 buttonStyle={{
@@ -146,10 +320,15 @@ class Reservation extends Component {
                   color: 'blue',
                   textDecorationLine: 'underline',
                 }}
-              />
+              /> */}
+
               <Button
                 title='Gallary'
-                onPress={this.pickImage}
+                onPress={() => {
+                  this.setState({
+                    showGallery: true,
+                  });
+                }}
                 buttonStyle={{
                   backgroundColor: null,
                 }}
@@ -274,38 +453,9 @@ class Reservation extends Component {
 
             <View style={styles.formRow}>
               <Button
-                onPress={() =>
-                  fetch(baseUrlNode + 'api/vehicle/add', {
-                    method: 'POST',
-                    headers: {
-                      'x-auth-token': this.state.token,
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                      type: this.state.type,
-                      manufacturer: this.state.manufacturer,
-                      model: this.state.model,
-                      year: this.state.year,
-                      seatingCapacity: this.state.seatingCapacity,
-                      transmission: this.state.transmission,
-                      fare: this.state.fare,
-                      city: this.state.city,
-                      driver: this.state.driver,
-                    }),
-                  })
-                    .then((res) => res.json())
-                    .then(async (data) => {
-                      try {
-                        if (!data.errors) {
-                          navigate('Vehicles');
-                        } else {
-                          data.errors.forEach((error) => alert(error.msg));
-                        }
-                      } catch (e) {
-                        console.log('error hai', e);
-                      }
-                    })
-                }
+                onPress={() => {
+                  this.saveImage();
+                }}
                 title='Reserve'
                 color='#512DA8'
                 accessibilityLabel='Learn more about this purple button'
@@ -408,6 +558,15 @@ const styles = StyleSheet.create({
     margin: 10,
     width: 80,
     height: 60,
+  },
+  flex: {
+    flex: 1,
+    width: '98%',
+    marginLeft: '1%',
+  },
+  container: {
+    justifyContent: 'center',
+    margin: 20,
   },
 });
 

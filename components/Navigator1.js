@@ -7,8 +7,8 @@ import {
 import { createStackNavigator } from 'react-navigation-stack';
 //import LoginScreen from "../screens/Auth/LoginScreen";
 import { createDrawerNavigator, DrawerItems } from 'react-navigation-drawer';
-
 import Landing from './landingPage';
+import Logout from './Owner/logout';
 import Login from './Owner/LoginComponent';
 import Login1 from './Customer/LoginComponent';
 import Menu from './Owner/MenuComponent';
@@ -25,13 +25,13 @@ import DishDetail1 from './Customer/VehicleDetails';
 import Favorites from './Owner/FavoriteComponent';
 import Reservation from './Owner/ReservationComponent';
 import Reservation1 from './Customer/ReservationComponent';
-import Ranking from './Customer/ranking';
 import Home from './Owner/HomeComponent';
 import UserProfileView from './Owner/profile';
 import UserProfileView1 from './Customer/profile';
 import Booking from './Owner/Booking-History';
 import Booking1 from './Customer/Booking-History';
-import EditInfo from './Owner/EditInformation';
+import handleEditInfo from './Owner/EditInformation';
+import handleEditInfo1 from './Customer/EditInformation';
 import RentVehicle from './Customer/RentVehicle';
 import Ranking1 from './Owner/ranking';
 
@@ -42,6 +42,7 @@ import {
   ScrollView,
   Image,
   StyleSheet,
+  AsyncStorage,
 } from 'react-native';
 //import { SafeAreaView } from 'react-navigation';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -138,7 +139,7 @@ const AppNavigator = createSwitchNavigator({
       Profile: createStackNavigator(
         {
           UserProfileView: UserProfileView,
-          EditInfo: EditInfo,
+          EditInfo: handleEditInfo,
         },
         {
           initialRouteName: 'UserProfileView',
@@ -242,6 +243,18 @@ const AppNavigator = createSwitchNavigator({
           },
         }
       ),
+      Logout: createStackNavigator(
+        {
+          Logout: Logout,
+          Landing: Landing,
+        },
+        {
+          initialRouteName: 'Logout',
+          defaultNavigationOptions: {
+            headerShown: true,
+          },
+        }
+      ),
     },
 
     {
@@ -259,6 +272,7 @@ const AppNavigator = createSwitchNavigator({
       Profile: createStackNavigator(
         {
           UserProfileView: UserProfileView1,
+          EditInfo: handleEditInfo1,
         },
         {
           initialRouteName: 'UserProfileView',
@@ -290,13 +304,12 @@ const AppNavigator = createSwitchNavigator({
           },
         }
       ),
-      RentVehicle: createStackNavigator(
+      BookVehicle: createStackNavigator(
         {
           RentVehicle: RentVehicle,
           Vehicles: Menu1,
           Detail: DishDetail1,
           Booking: Book1,
-          feedback: Ranking,
         },
         {
           initialRouteName: 'RentVehicle',
@@ -318,7 +331,7 @@ const AppNavigator = createSwitchNavigator({
       //   }
       // ),
 
-      Booking: createStackNavigator(
+      History: createStackNavigator(
         {
           Booking: Booking1,
         },
@@ -346,6 +359,18 @@ const AppNavigator = createSwitchNavigator({
         },
         {
           initialRouteName: 'Contact',
+          defaultNavigationOptions: {
+            headerShown: true,
+          },
+        }
+      ),
+      Logout: createStackNavigator(
+        {
+          Logout: Logout,
+          Landing: Landing,
+        },
+        {
+          initialRouteName: 'Logout',
           defaultNavigationOptions: {
             headerShown: true,
           },

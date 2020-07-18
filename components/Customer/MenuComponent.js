@@ -16,7 +16,6 @@ import {
 import Swipeout from 'react-native-swipeout';
 
 import { ListItem, Tile } from 'react-native-elements';
-import { DISHES } from '../../shared/dishes';
 import { connect } from 'react-redux';
 import { baseUrl } from '../../shared/baseUrl';
 import { Loading } from '../LoadingComponent';
@@ -48,33 +47,18 @@ class Menu1 extends Component {
   }
 
   componentDidMount() {
+    this.getData();
+    this.listener = this.props.navigation.addListener('didFocus', this.getData);
+  }
+
+  componentWillUnmount() {
+    this.listener.remove();
+  }
+
+  getData = async () => {
     const type = this.props.navigation.getParam('type', '');
     const city = this.props.navigation.getParam('city', '');
     const driver = this.props.navigation.getParam('driver', '');
-
-    console.log(type);
-
-    this.getData(type, city, driver);
-  }
-
-  usespinner = () => {
-    // const vehicle1 = this.props.navigation.getParam('value');
-    // console.log(vehicle1);
-    // this.setState({ counter: vehicle1 });
-    // if (this.state.counter) {
-    //   return this.getData();
-    // }
-  };
-
-  //componentDidUpdate() {
-
-  // if (this.state.counter) {
-  //   this.getData();
-  //   this.setState({ counter: false });
-  // }
-  //}
-
-  getData = async (type, city, driver) => {
     const token = await AsyncStorage.getItem('token');
     this.setState({ token: token });
     console.log(token);
@@ -192,7 +176,7 @@ class Menu1 extends Component {
               item.available
             }
             hideChevron={true}
-            leftAvatar={{ source: require('../images/car.jpg') }}
+            leftAvatar={{ source: { uri: item.imageURI } }}
             onPress={() => navigate('Detail', { vehicle: item })}
           />
         </Animatable.View>
@@ -202,10 +186,6 @@ class Menu1 extends Component {
     return (
       <ScrollView>
         <FlatList data={this.state.vehicles} renderItem={renderMenuItem} />
-
-        {/* refreshControl=
-        {<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} */}
-        {this.usespinner()}
       </ScrollView>
     );
   }

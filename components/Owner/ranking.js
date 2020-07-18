@@ -69,6 +69,8 @@ class Ranking1 extends Component {
   submitRank() {
     console.log('1st');
     const id = this.props.navigation.getParam('id', '');
+    console.log(id);
+    console.log(this.state.token);
     fetch(baseUrlNode + 'api/owner/rank/' + id, {
       method: 'POST',
       headers: {
@@ -77,7 +79,6 @@ class Ranking1 extends Component {
       },
       body: JSON.stringify({
         feedbackCustomer: this.state.feedbackCustomer,
-
         rankCustomer: this.state.rankCustomer,
       }),
     })
@@ -85,6 +86,7 @@ class Ranking1 extends Component {
       .then(async (data) => {
         try {
           if (!data.errors) {
+            console.log('no error');
           } else {
             data.errors.forEach((error) => alert(error.msg));
           }
@@ -162,7 +164,7 @@ class Ranking1 extends Component {
               <Text style={styles.formLabel}>Feedback about Customer</Text>
               <Input
                 style={styles.formItem}
-                placeholder='Honda, Toyota etc'
+                placeholder='You Comments about Customer'
                 onChangeText={(feedbackCustomer) =>
                   this.setState({ feedbackCustomer })
                 }

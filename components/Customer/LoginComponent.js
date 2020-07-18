@@ -1,5 +1,15 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Text, ScrollView, Image } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Text,
+  ScrollView,
+  Image,
+  Platform,
+  Alert,
+  Modal,
+  TouchableOpacity,
+} from 'react-native';
 import { Input, CheckBox, Button, Icon } from 'react-native-elements';
 import * as SecureStore from 'expo-secure-store';
 import * as Permissions from 'expo-permissions';
@@ -10,9 +20,14 @@ import { AsyncStorage } from 'react-native';
 import { baseUrlNode } from '../../shared/baseUrl';
 
 import { createBottomTabNavigator } from 'react-navigation-tabs';
-//import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
 import { baseUrl } from '../../shared/baseUrl';
 
+//import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import ImageBrowser from '../ImagePicker/ImageBrowser';
+import { MaterialCommunityIcons } from 'react-native-vector-icons';
+
+const MyServerIP = baseUrl;
 class LoginTab extends Component {
   constructor(props) {
     super(props);
@@ -24,16 +39,16 @@ class LoginTab extends Component {
     };
   }
 
-  // componentDidMount() {
-  //   SecureStore.getItemAsync('userinfo').then((userdata) => {
-  //     let userinfo = JSON.parse(userdata);
-  //     if (userinfo) {
-  //       this.setState({ username: userinfo.username });
-  //       this.setState({ password: userinfo.password });
-  //       this.setState({ remember: true });
-  //     }
-  //   });
-  // }
+  componentDidMount() {
+    SecureStore.getItemAsync('userinfo').then((userdata) => {
+      let userinfo = JSON.parse(userdata);
+      if (userinfo) {
+        this.setState({ username: userinfo.username });
+        this.setState({ password: userinfo.password });
+        this.setState({ remember: true });
+      }
+    });
+  }
 
   static navigationOptions = {
     title: 'Login',
@@ -48,7 +63,7 @@ class LoginTab extends Component {
   };
 
   handleLogin() {
-    fetch(baseUrlNode + 'api/Customer/auth/login', {
+    fetch(baseUrlNode + 'api/customer/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -90,7 +105,9 @@ class LoginTab extends Component {
           onChangeText={(password) => this.setState({ password })}
           value={this.state.password}
           containerStyle={styles.formInput}
+          secureTextEntry={true}
         />
+
         <CheckBox
           title='Remember Me'
           center
@@ -141,6 +158,8 @@ class LoginTab extends Component {
   }
 }
 
+const MainColor = '#085f63';
+var cPhotos = [];
 class RegisterTab extends Component {
   constructor(props) {
     super(props);
@@ -153,7 +172,13 @@ class RegisterTab extends Component {
       password: '',
       city: '',
       remember: false,
-      imageUrl: baseUrl + 'images/nobody.jpg',
+      imageUrl: './assets/advisory.jpg',
+      ImageSelected: {},
+      showGallery: false,
+      hasCameraPermission: null,
+      hasCameraRollPermission: null,
+      HeaderGallery: 'Select Images To Upload',
+      submitFunction: null,
     };
   }
 
@@ -169,10 +194,15 @@ class RegisterTab extends Component {
     ) {
       let capturedImage = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
-        aspect: [4, 3],
+        aspect: [4, 4],
       });
       if (!capturedImage.cancelled) {
+        console.log('_______________________________________');
         console.log(capturedImage);
+        this.setState({
+          ImageSelected: capturedImage,
+        });
+
         this.processImage(capturedImage.uri);
       }
     }
@@ -182,7 +212,7 @@ class RegisterTab extends Component {
     let processedImage = await ImageManipulator.manipulateAsync(
       imageUri,
       [{ resize: { width: 400 } }],
-      { format: 'png' }
+      { format: 'jpeg' }
     );
     console.log(processedImage);
     this.setState({ imageUrl: processedImage.uri });
@@ -199,9 +229,34 @@ class RegisterTab extends Component {
       />
     ),
   };
-
+  saveImage() {
+    const Image = this.state.ImageSelected[0];
+    if (Image) {
+      const API = baseUrlNode + 'api/owner/uploadPhoto';
+      console.log(API);
+      const fd = new FormData();
+      fd.append('photo', Image);
+      let data = {
+        body: fd,
+        method: 'POST',
+      };
+      fetch(API, data)
+        .then((res) => res.json())
+        .then((result) => {
+          if (result.read) {
+            console.log(result.url);
+            this.setState({ imageUrl: result.url });
+            this.handleRegister();
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }
   handleRegister() {
     console.log('yahan a raha');
+    // localhost means your mobile cannot access this
     fetch(baseUrlNode + 'api/customer/register', {
       method: 'POST',
       headers: {
@@ -214,6 +269,7 @@ class RegisterTab extends Component {
         email: this.state.email,
         city: this.state.city,
         password: this.state.password,
+        imageURI: this.state.imageUrl,
       }),
     })
       .then((res) => res.json())
@@ -237,35 +293,152 @@ class RegisterTab extends Component {
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
         allowsEditing: true,
-        aspect: [4, 3],
+        aspect: [4, 4],
         quality: 1,
       });
       if (!result.cancelled) {
+        // console.log("_____________________________________________________");
+        // console.log(result);
+        // this.setState({
+        //   imageUrl:result.uri
+        // });
         this.processImage(result.uri);
       }
 
-      console.log(result);
+      // console.log(result);
     } catch (E) {
       console.log(E);
     }
   };
+
+  // Custom Image Picker Items
+
+  componentDidMount() {
+    cPhotos = [];
+  }
+  imagesCallback = (callback) => {
+    // console.log('Called OnSubmit');
+    callback
+      .then((photos) => {
+        for (let photo of photos) {
+          cPhotos.push({
+            uri:
+              Platform.OS === 'android'
+                ? photo.uri
+                : photo.uri.replace('file://', ''),
+            name: photo.filename,
+            type: 'image/jpg',
+          });
+        }
+        // this.setState({capturedImages:cPhotos});
+        if (cPhotos.length > 0) {
+          this.setState({
+            showGallery: false,
+            HeaderGallery: 'Select Images To Upload',
+            ImageSelected: cPhotos,
+            imageUrl: cPhotos[0].uri,
+          });
+          cPhotos = [];
+        }
+      })
+      .catch((e) => console.log(e));
+  };
+  updateHandler = (count, onSubmit) => {
+    if (count == 0) {
+      this.setState({ HeaderGallery: 'Select Images To Upload' });
+    } else {
+      this.setState({ submitFunction: onSubmit });
+      this.setState({ HeaderGallery: count + ' Images Selected' });
+    }
+  };
+  renderSelectedComponent = (number) => (
+    <View style={styles.countBadge}>
+      <Text style={styles.countBadgeText}>{number}</Text>
+    </View>
+  );
+
   render() {
+    const emptyStayComponent = <Text style={styles.emptyStay}>Empty =(</Text>;
+    const noCameraPermissionComponent = (
+      <Text style={styles.emptyStay}>No access to camera</Text>
+    );
     return (
       <ScrollView>
+        <Modal
+          visible={this.state.showGallery}
+          onRequestClose={() =>
+            this.setState({
+              showGallery: false,
+            })
+          }
+          onDismiss={() =>
+            this.setState({
+              showGallery: false,
+            })
+          }
+        >
+          <View style={[styles.flex, styles.container]}>
+            <View
+              style={{
+                flexDirection: 'row',
+                backgroundColor: 'white',
+                marginBottom: 10,
+                height: 60,
+                borderWidth: 0.5,
+                borderColor: '#512DA8',
+                borderRadius: 20,
+              }}
+            >
+              <Text
+                style={{
+                  flex: 1,
+                  color: 'black',
+                  textAlign: 'center',
+                  textAlignVertical: 'center',
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  paddingLeft: 6,
+                }}
+              >
+                Select Profile Image
+              </Text>
+              <TouchableOpacity
+                style={{ padding: 5, marginTop: 8, marginRight: 7 }}
+                onPress={() => {
+                  if (this.state.submitFunction == null) {
+                  } else {
+                    this.state.submitFunction();
+                  }
+                }}
+              >
+                <MaterialCommunityIcons
+                  name='done-all'
+                  size={32}
+                  color='#512DA8'
+                />
+              </TouchableOpacity>
+            </View>
+            <ImageBrowser
+              max={1}
+              onChange={this.updateHandler}
+              callback={this.imagesCallback}
+              renderSelectedComponent={this.renderSelectedComponent}
+              emptyStayComponent={emptyStayComponent}
+              noCameraPermissionComponent={noCameraPermissionComponent}
+            />
+          </View>
+        </Modal>
         <View style={styles.container}>
           <Text style={{ margin: 10, fontSize: 15 }}>
             Select your Profile Picture
           </Text>
           <View style={styles.imageContainer}>
             <Image
-              source={{
-                uri:
-                  'file:///data/user/0/host.exp.exponent/cache/ExperienceData/%2540anonymous%252FSawariMobile-9b27cae7-5ccd-49d1-86ae-8bff4e2d5ccd/ImageManipulator/9d156135-6603-400d-8d97-140bc6ce7315.png',
-              }}
-              loadingIndicatorSource={require('../images/logo.png')}
+              source={{ uri: this.state.imageUrl }}
+              loadingIndicatorSource={require('../images/nobody.jpg')}
               style={styles.image}
             />
-            <Button
+            {/* <Button
               title='Camera'
               onPress={this.getImageFromCamera}
               buttonStyle={{
@@ -275,10 +448,15 @@ class RegisterTab extends Component {
                 color: 'blue',
                 textDecorationLine: 'underline',
               }}
-            />
+            /> */}
             <Button
               title='Gallary'
-              onPress={this.pickImage}
+              onPress={() => {
+                this.setState({
+                  showGallery: true,
+                });
+                this.pickImage;
+              }}
               buttonStyle={{
                 backgroundColor: null,
               }}
@@ -339,7 +517,7 @@ class RegisterTab extends Component {
           />
           <View style={styles.formButton}>
             <Button
-              onPress={() => this.handleRegister()}
+              onPress={() => this.saveImage()}
               title=' Register'
               icon={
                 <Icon
@@ -361,6 +539,30 @@ class RegisterTab extends Component {
 }
 
 const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+    width: '98%',
+    marginLeft: '1%',
+  },
+  emptyStay: {
+    textAlign: 'center',
+  },
+  countBadge: {
+    paddingHorizontal: 8.6,
+    paddingVertical: 5,
+    borderRadius: 50,
+    position: 'absolute',
+    right: 3,
+    bottom: 3,
+    justifyContent: 'center',
+    backgroundColor: MainColor,
+  },
+  countBadgeText: {
+    fontWeight: 'bold',
+    alignSelf: 'center',
+    padding: 'auto',
+    color: '#ffffff',
+  },
   container: {
     justifyContent: 'center',
     margin: 20,
@@ -392,7 +594,16 @@ const styles = StyleSheet.create({
   },
 });
 
-const Login1 = createBottomTabNavigator(
+// export default function MainLogin() {
+//   const Login = createBottomTabNavigator();
+//   return (
+//     <Login.Navigator>
+//       <Login.Screen name='Login' component={LoginTab} />
+//       <Login.Screen name='Register' component={RegisterTab} />
+//     </Login.Navigator>
+//   );
+// }
+const Login = createBottomTabNavigator(
   {
     Login: LoginTab,
     Register: RegisterTab,
@@ -407,4 +618,4 @@ const Login1 = createBottomTabNavigator(
   }
 );
 
-export default Login1;
+export default Login;

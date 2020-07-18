@@ -11,7 +11,7 @@ import {
   Alert,
 } from 'react-native';
 import { baseUrlNode } from '../../shared/baseUrl';
-import { Card, Input } from 'react-native-elements';
+import { Card, Input, Rating } from 'react-native-elements';
 import DatePicker from 'react-native-datepicker';
 import * as Animatable from 'react-native-animatable';
 import { Notifications } from 'expo';
@@ -29,6 +29,8 @@ class Reservation extends Component {
       vehicle: [],
       booking: [],
       showModal: false,
+      showModal1: false,
+      showModal2: false,
     };
   }
 
@@ -37,10 +39,16 @@ class Reservation extends Component {
     const token1 = await AsyncStorage.getItem('token');
     this.setState({ token: token1 });
     console.log(this.state.token);
-    this.getData(id);
+    this.getData();
+    this.listener = this.props.navigation.addListener('didFocus', this.getData);
   };
 
-  getData = async (id) => {
+  componentWillUnmount() {
+    this.listener.remove();
+  }
+
+  getData = async () => {
+    const id = this.props.navigation.getParam('id', '');
     const token = await AsyncStorage.getItem('token');
     const response = await fetch(baseUrlNode + 'api/vehicle/vehicle/' + id, {
       method: 'GET',
@@ -66,12 +74,70 @@ class Reservation extends Component {
     this.setState({ showModal: !this.state.showModal });
   }
 
+  toggleModal1() {
+    this.setState({ showModal1: !this.state.showModal1 });
+  }
+  toggleModal2() {
+    this.setState({ showModal2: !this.state.showModal2 });
+  }
+
   ranking() {
     const { navigate } = this.props.navigation;
     navigate('feedback', {
       id: this.state.booking._id,
       Vid: this.state.vehicle._id,
     });
+  }
+
+  submitRank() {
+    console.log('1st');
+    const id = this.state.booking._id;
+    fetch(baseUrlNode + 'api/customer/rank/' + id, {
+      method: 'POST',
+      headers: {
+        'x-auth-token': this.state.token,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        feedbackOwner: this.state.feedbackOwner,
+        feedbackVehicle: this.state.feedbackVehicle,
+        rankOwner: this.state.rankOwner,
+        rankVehicle: this.state.rankVehicle,
+      }),
+    })
+      .then((res) => res.json())
+      .then(async (data) => {
+        try {
+          if (!data.errors) {
+          } else {
+            data.errors.forEach((error) => alert(error.msg));
+          }
+        } catch (e) {
+          console.log('error hai', e);
+        }
+      });
+  }
+
+  bookingStatus() {
+    console.log('3rd');
+    const id = this.state.booking._id;
+    fetch(baseUrlNode + 'api/customer/booked/' + id, {
+      method: 'POST',
+      headers: {
+        'x-auth-token': this.state.token,
+      },
+    })
+      .then((res) => res.json())
+      .then(async (data) => {
+        try {
+          if (!data.errors) {
+          } else {
+            data.errors.forEach((error) => alert(error.msg));
+          }
+        } catch (e) {
+          console.log('error hai', e);
+        }
+      });
   }
 
   handleReservation() {
@@ -253,13 +319,117 @@ class Reservation extends Component {
 
               <Button
                 onPress={() => {
+                  this.toggleModal1();
                   this.toggleModal();
                   this.resetForm();
-                  this.ranking();
                 }}
                 color='#512DA8'
                 title='End Booking'
               />
+            </View>
+          </Modal>
+
+          <Modal
+            animationType={'slide'}
+            transparent={false}
+            visible={this.state.showModal1}
+            onDismiss={() => this.toggleModal1()}
+            onRequestClose={() => this.toggleModal1()}
+          >
+            <View style={styles.modal}>
+              <Text style={styles.modalTitle}>Pay Your Owner</Text>
+              <Text style={styles.modalText1}>
+                Rupees : {this.state.vehicle.fare * this.state.booking.days}
+              </Text>
+
+              <Button
+                onPress={() => {
+                  this.toggleModal2();
+                  this.toggleModal1();
+                }}
+                color='#512DA8'
+                title='Done'
+              />
+            </View>
+          </Modal>
+
+          <Modal
+            animationType={'slide'}
+            transparent={false}
+            visible={this.state.showModal2}
+            onDismiss={() => this.toggleModal2()}
+            onRequestClose={() => this.toggleModal2()}
+          >
+            <View style={styles.modal}>
+              <Animatable.View animation='zoomIn' duration={3000}>
+                <Text style={styles.modalTitle}>Ranking & Feedback</Text>
+                <View style={styles.formrow1}>
+                  <Text style={styles.formLabel1}>Rank Vehicle</Text>
+                  <Rating
+                    showRating
+                    startingValue={1}
+                    imageSize={18}
+                    style={{ alignItems: 'center', padding: 5 }}
+                    onFinishRating={(rankVehicle) => {
+                      this.setState({ rankVehicle });
+                    }}
+                  />
+                </View>
+
+                <View style={styles.formrow1}>
+                  <Text style={styles.formLabel1}>Feedback about Vehicle</Text>
+                  <Input
+                    style={styles.formItem}
+                    placeholder='Write Feedback'
+                    onChangeText={(feedbackVehicle) =>
+                      this.setState({ feedbackVehicle })
+                    }
+                    value={this.state.feedbackVehicle}
+                  />
+                </View>
+
+                <View style={styles.formrow1}>
+                  <Text style={styles.formLabel1}>Rank Owner</Text>
+                  <Rating
+                    showRating
+                    startingValue={1}
+                    imageSize={18}
+                    style={{ alignItems: 'center', padding: 5 }}
+                    onFinishRating={(rankOwner) => {
+                      this.setState({ rankOwner });
+                    }}
+                  />
+                </View>
+
+                <View style={styles.formrow1}>
+                  <Text style={styles.formLabel1}>Feedback about Owner</Text>
+                  <Input
+                    style={styles.formItem}
+                    placeholder='Write Feedback'
+                    onChangeText={(feedbackOwner) =>
+                      this.setState({ feedbackOwner })
+                    }
+                    value={this.state.feedbackOwner}
+                  />
+                </View>
+
+                <View style={styles.formrow1}>
+                  <Button
+                    onPress={() => {
+                      this.submitRank();
+                      this.bookingStatus();
+                      this.toggleModal2();
+
+                      //this.endBooking();
+                      const { navigate } = this.props.navigation;
+                      navigate('RentVehicle');
+                    }}
+                    title='Submit'
+                    color='#512DA8'
+                    accessibilityLabel='Learn more about this purple button'
+                  />
+                </View>
+              </Animatable.View>
             </View>
           </Modal>
         </Animatable.View>
@@ -269,6 +439,9 @@ class Reservation extends Component {
 }
 
 const styles = StyleSheet.create({
+  formrow1: {
+    margin: 5,
+  },
   formRow: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -276,9 +449,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     margin: 20,
   },
+
   formLabel: {
     fontSize: 18,
     flex: 2,
+  },
+
+  formLabel1: {
+    fontSize: 18,
+    //flex: 1.5,
+    fontWeight: 'bold',
   },
   formItem: {
     flex: 1,
@@ -299,6 +479,13 @@ const styles = StyleSheet.create({
   modalText: {
     fontSize: 18,
     margin: 10,
+  },
+  modalText1: {
+    fontSize: 25,
+    margin: 10,
+    textAlign: 'center',
+    margin: 20,
+    fontWeight: 'bold',
   },
 });
 

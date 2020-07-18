@@ -14,6 +14,11 @@ export default class UserProfileView extends Component {
   }
   componentDidMount() {
     this.getData();
+    this.listener = this.props.navigation.addListener('didFocus', this.getData);
+  }
+
+  componentWillUnmount() {
+    this.listener.remove();
   }
 
   getData = async () => {
@@ -36,13 +41,15 @@ export default class UserProfileView extends Component {
 
   render() {
     const { navigate } = this.props.navigation;
+    console.log(this.state.owner.imageURI);
+    console.log(this.state.owner.name);
     return (
       <View style={styles.container}>
         <View style={styles.header}>
           <View style={styles.headerContent}>
             <Image
               style={styles.avatar}
-              source={require('../images/aflak.jpg')}
+              source={{ uri: this.state.owner.imageURI }}
             />
 
             <Text style={styles.name}>{this.state.owner.name} </Text>
@@ -60,7 +67,7 @@ export default class UserProfileView extends Component {
 
           <Button
             onPress={() => navigate('EditInfo', { owner: this.state.owner })}
-            title=' Add new Vehicle'
+            title=' Edit Information'
           />
         </View>
       </View>
@@ -77,8 +84,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   avatar: {
-    width: 130,
-    height: 130,
+    width: 120,
+    height: 120,
     borderRadius: 63,
     borderWidth: 4,
     borderColor: 'white',
